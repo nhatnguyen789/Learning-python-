@@ -8,22 +8,51 @@ Làm quen với lệnh Linux, shell scripting và công cụ phân tích hiệu 
 - Liệt kê tất cả các file `.c` trong thư mục hiện tại.
 - Đếm số dòng trong tất cả file `.log`.
 - Tìm tất cả file chứa chuỗi "ERROR" trong `/var/log/`.
+Answer:
+a) Liệt kê: 
+- Đây là cách đơn giản và đúng để liệt kê file .c trong thư mục hiện tại.
+	$ ls *.c
+📌 Gợi ý thêm:
+- Nếu muốn liệt kê kèm chi tiết (thời gian, quyền, dung lượng):
+	$ ls -l *.c
+- Nếu muốn tìm mọi file .c trong thư mục hiện tại và thư mục con, dùng:
+	$ find . -name "*.c"
+b) - Đếm số dòng trong tất cả file .log
+	$ cat *.log | wc -l
+- Hoặc nếu có nhiều file, hoặc cần an toàn với tên file chứa khoảng trắng:
+	$ find . -name "*.log" -exec cat {} + | wc -l
+c) Tìm tất cả file chứa chuỗi "ERROR" trong /var/log/
+	$grep -r "ERROR" /var/log
+- Giải thích:
+-r: tìm đệ quy trong tất cả thư mục con
+/var/log: là đường dẫn tuyệt đối
+Nếu bạn đang ở thư mục /, var/log cũng đúng — nhưng nên dùng /var/log để rõ ràng
+📌 Gợi ý thêm:
+Để chỉ hiển thị tên file chứa chuỗi, dùng:
+	$ grep -rl "ERROR" /var/log
+
+-------------------------------------------------------
 
 ### 2. Shell Scripting
 - Viết script in "Hello" mỗi 2 giây, lặp lại 5 lần.
 - Viết script đếm số file `.txt` trong thư mục.
 
+-------------------------------------------------------
 ### 3. File Permission & Navigation
 - Tạo thư mục `test`, vào trong đó, tạo 3 file `a.txt`, `b.txt`, `c.txt`. Đổi quyền thành chỉ đọc.
 - Ghi lại đường dẫn tuyệt đối của file `b.txt`.
 
+-------------------------------------------------------
 ### 4. Process & System
 - Hiển thị 5 tiến trình sử dụng nhiều CPU nhất.
 - Ghi lại mức sử dụng RAM hiện tại.
 
+-------------------------------------------------------
 ### 5. Performance/Testing Tools
 - Dùng `time` để đo thời gian chạy script Python đơn giản.
 - Dùng `top` để kiểm tra mức sử dụng CPU trong 10 giây.
 
+-------------------------------------------------------
 ### 6. Bonus: Viết shell script
 - Tạo một shell script tên `check_temp.sh` giả lập kiểm tra giá trị nhiệt độ (random từ 30-100). Nếu > 70 thì in "Warning".
+-------------------------------------------------------
