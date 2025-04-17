@@ -30,6 +30,77 @@ Nếu bạn đang ở thư mục /, var/log cũng đúng — nhưng nên dùng /
 📌 Gợi ý thêm:
 Để chỉ hiển thị tên file chứa chuỗi, dùng:
 	$ grep -rl "ERROR" /var/log
+-------------------------------------------------------
+***Kiến thức:
+📌 grep là viết tắt của gì?
+- grep viết tắt từ:
+	"globally regular expression print"
+Nghĩa là:
+🔎 In ra các dòng khớp với biểu thức chính quy trên toàn bộ tệp hoặc dòng dữ liệu.
+Bạn có thể nghĩ grep như là:
+✅ Công dụng chính của grep là gì?
+grep dùng để:
+- Tìm kiếm dòng chứa một chuỗi cụ thể trong file hoặc output
+- Có thể dùng biểu thức chính quy để tìm nâng cao hơn
+- Hữu ích trong việc phân tích log, test output, tìm lỗi
+
+*** “Tôi muốn tìm dòng nào có từ này, trong file kia, càng nhanh càng tốt!” ***
+
+📌 Mẹo để dễ nhớ:
+Lệnh grep giống như 		| Ghi nhớ thế này
+Một cái máy dò tìm chuỗi 	| grep = grab (nắm bắt chuỗi)
+Lọc log hoặc đầu ra 		| grep = get results precisely
+Rất hợp với pipe (` 		| `)
+
+📝 GREP CHEAT SHEET – TÌM KIẾM CHUỖI TRONG LINUX
+Câu lệnh				Ý nghĩa
+grep "hello" file.txt			Tìm dòng chứa "hello" trong file file.txt
+grep -i "hello" file.txt		Tìm "hello" không phân biệt chữ hoa/thường
+grep -r "error" /var/log		Tìm đệ quy từ /var/log, tất cả file con
+grep -rl "ERROR" .			Chỉ in tên file chứa "ERROR" trong thư mục hiện tại
+grep -n "FAIL" results.txt		Hiển thị số dòng nơi xuất hiện "FAIL"
+grep -v "PASS" log.txt			In ra tất cả dòng không chứa "PASS"
+grep -c "error" log.txt			Đếm số dòng chứa "error" trong log.txt
+`ps aux					grep firefox`
+`dmesg					grep -i usb`
+`cat file.txt				grep "^A"`
+grep "abc$" file.txt			Tìm dòng kết thúc bằng "abc"
+
+
+📘 Một số flag thường gặp của grep:
+Flag 			| Ý nghĩa
+-i 			| Không phân biệt chữ hoa/thường
+-r hoặc -R 		| Duyệt đệ quy qua thư mục
+-l 			| Chỉ in ra tên file chứa chuỗi tìm
+-n 			| In số dòng
+-v 			| In các dòng không khớp
+-c 			| Đếm số dòng khớp
+-E 			| Cho phép dùng biểu thức chính quy mở rộng
+
+🔎 Bonus – Biểu thức chính quy thường dùng:
+Biểu thức 		| Ý nghĩa
+^abc 			| Dòng bắt đầu bằng "abc"
+xyz$ 			| Dòng kết thúc bằng "xyz"
+[0-9] 			| Bất kỳ số nào từ 0 đến 9
+[A-Za-z] 		| Bất kỳ ký tự chữ cái
+. 			| Đại diện cho bất kỳ ký tự nào
+* 			| Lặp lại 0 hoặc nhiều lần
+\. 			| Dấu chấm thật (escape ký tự đặc biệt)
+
+📂 Mẹo học nhanh:
+👉 grep = "tìm cái mình cần trong đống dữ liệu"
+👉 Ghép grep với cat, dmesg, ps, ls, journalctl... cực kỳ mạnh!
+
+📘 Ví dụ dễ nhớ:
+🔍 Tìm dòng chứa "ERROR" trong file log:
+$ grep "ERROR" system.log
+
+🔍 Tìm tất cả file có chứa "FAIL" trong thư mục hiện tại (và thư mục con):
+$ grep -rl "FAIL" .
+
+🔍 Tìm dòng chứa số điện thoại (biểu thức chính quy):
+grep -E "[0-9]{3}-[0-9]{3}-[0-9]{4}" contacts.txt
+
 
 -------------------------------------------------------
 
