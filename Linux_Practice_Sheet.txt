@@ -4,7 +4,7 @@
 Làm quen với lệnh Linux, shell scripting và công cụ phân tích hiệu năng.
 
 ---
-### 1. Basic Linux Commands
+Bài tập 1. Basic Linux Commands
 - Liệt kê tất cả các file `.c` trong thư mục hiện tại.
 - Đếm số dòng trong tất cả file `.log`.
 - Tìm tất cả file chứa chuỗi "ERROR" trong `/var/log/`.
@@ -104,26 +104,256 @@ grep -E "[0-9]{3}-[0-9]{3}-[0-9]{4}" contacts.txt
 
 -------------------------------------------------------
 
-### 2. Shell Scripting
+Bài tập 2. Shell Scripting
 - Viết script in "Hello" mỗi 2 giây, lặp lại 5 lần.
 - Viết script đếm số file `.txt` trong thư mục.
 
+Answer:
+Script (hello_loop.sh):
+#!/usr/bin/env bash
+
+# Số lần lặp
+count=5
+# Khoảng nghỉ giữa các lần in (giây)
+interval=2
+
+for ((i=1; i<=count; i++)); do
+  echo "Hello"
+  sleep "$interval"
+done
+
+Giải thích các thành phần chính
+- Shebang (#!/usr/bin/env bash)
+  Chỉ rõ shell thực thi script là Bash (thay vì #!/bin/bash cố định đường dẫn).
+
+- Vòng lặp C-style:
+	for ((i=1; i<=count; i++)); do
+ 	 …
+	done
+- Khởi tạo biến i=1;
+- Điều kiện tiếp tục i<=count;
+- Sau mỗi vòng, i tự tăng (i++).
++ echo -> In ra dòng chữ kèm newline.
+
++ sleep -> Tạm dừng tiến trình trong số giây chỉ định. Có thể dùng số thực (ví dụ: sleep 0.5).
+
+Mở rộng kiến thức:
+- Các kiểu vòng lặp trong Bash
+	for var in list; do …; done
+	while [ condition ]; do …; done
+	until [ condition ]; do …; done
+- Xử lý tín hiệu (trap):
+Nếu muốn dừng ngay khi người dùng nhấn Ctrl+C, có thể bắt tín hiệu:
+$ trap 'echo "Interrupted"; exit' SIGINT
+
+2) Viết script đếm số file .txt trong thư mục
+Script (count_txt.sh):
+#!/usr/bin/env bash
+
+# Thư mục chứa các file (mặc định là thư mục hiện tại)
+directory="${1:-.}"
+
+# Đếm file .txt
+count=$(find "$directory" -maxdepth 1 -type f -name "*.txt" | wc -l)
+
+echo "Số file .txt trong thư mục '$directory': $count"
+
+Giải thích các thành phần chính
+- Biến tham số:
+	$ directory="${1:-.}"
+- Nếu khi chạy truyền đối số $1, dùng làm thư mục;
+- Nếu không có, mặc định là . (thư mục hiện tại).
+
++ find:
+-maxdepth 1: chỉ tìm ngay trong thư mục, không đệ quy xuống thư mục con.
+-type f: chỉ tìm file (không bao gồm thư mục).
+-name "*.txt": khớp các tên kết thúc bằng .txt.
+
++ wc -l
+Đếm số dòng đầu vào—tương ứng với số file tìm được.
+
+Mở rộng kiến thức
+- Đệ quy tìm .txt trong cả cây thư mục
+  Bỏ -maxdepth 1:
+$ find "$directory" -type f -name "*.txt" | wc -l
+- Bỏ qua phân biệt chữ hoa/chữ thường:
+$ find "$directory" -type f \( -iname "*.txt" -o -iname "*.TXT" \) | wc -l
+- Sử dụng globbing
+Nếu chỉ cần đếm file ở thư mục hiện tại và Bash đã bật nullglob:
+$ shopt -s nullglob
+$ files=(*.txt)
+$ echo "${#files[@]}"
+
+- shopt -s nullglob: nếu không có file nào khớp, files sẽ thành mảng rỗng (thay vì chứa literal "*.txt").
+- ${#files[@]} trả về độ dài mảng.
+------------------------------------------
+1. Lệnh sleep
+Chức năng: Tạm dừng tiến trình trong một khoảng thời gian nhất định.
+Cú pháp cơ bản:
+$ sleep NUMBER[SUFFIX]
+- NUMBER có thể là số nguyên hoặc số thực (ví dụ 0.5).
+- SUFFIX (tuỳ chọn) xác định đơn vị:
+	- s cho giây (mặc định, có thể để trống).
+	- m cho phút.
+	- h cho giờ.
+	- d cho ngày.
+Ví dụ:
+$ sleep 2       # tạm dừng 2 giây
+$ sleep 0.1     # tạm dừng 0.1 giây
+$ sleep 3m      # tạm dừng 3 phút
+$ sleep 1h30m   # tạm dừng 1 giờ 30 phút
+
+- Ứng dụng thường gặp:
+	- Giãn khoảng giữa các lần thử kết nối mạng.
+	- Tạo delay trong các tiến trình tự động hoá.
+	- Thử nghiệm kịch bản có phân trang (throttling).
+
+2. Công cụ find + wc
++ find
+- Chức năng: Tìm file và thư mục theo điều kiện (tên, loại, kích thước, thời gian sửa, v.v.).
+- Cú pháp:
+	$ find [PATH...] [OPTIONS] [ACTIONS]
+- Một số tuỳ chọn quan trọng:
+	-name PATTERN
+	Khớp tên theo wildcard (*.txt, file?, v.v.), phân biệt chữ hoa/chữ thường.
+
+	-iname PATTERN
+	Giống -name nhưng không phân biệt hoa thường.
+
+	-type [f|d|l]
+	f = file thường, d = directory, l = symbolic link.
+
+	-maxdepth N / -mindepth N
+	Giới hạn độ sâu đệ quy.
+
+	-mtime N
+	File sửa đổi cách đây N ngày.
+
+	-size N[cwbkMG]
+	Kích thước (bằng byte, KB, MB, …).
+
+- Actions (thao tác trên kết quả):
+
+	- Mặc định in ra đường dẫn tìm được.
+	-print
+	In ra (mặc định đã in).
+	-exec COMMAND {} \;
+	Thực thi COMMAND với từng file (thay {} bằng đường dẫn).
+	-delete
+	Xoá file/thư mục tìm được
+
+Ví dụ:
+find . -type f -name "*.log" -mtime -7
+# tìm file .log được sửa trong 7 ngày gần nhất
+
+find /var/log -type f -name "*.gz" -exec gzip -d {} \;
+# giải nén các file .gz
+
+find . -type f -size +10M
+# tìm file lớn hơn 10 MB
+
++ wc (word count)
+Chức năng: Đếm số dòng, từ, ký tự của đầu vào.
+Cú pháp:
+$ wc [OPTIONS] [FILE...]
+Các tuỳ chọn chính:
+	-l: đếm dòng.
+	-w: đếm từ.
+	-c: đếm byte.
+	-m: đếm ký tự (UTF‑8).
+	-L: độ dài dòng dài nhất.
+- Ví dụ:
+$ wc -l file.txt
+# output: số dòng + tên file
+
+$ find . -type f -name "*.txt" | wc -l
+# kết hợp find + wc để đếm file .txt
+
+$wc -w *.md
+# đếm tổng từ trong các file Markdown
+
+3. Globbing trong Bash
+Globbing: sử dụng wildcard để mở rộng tên file mà không cần find.
+Các ký tự đặc biệt:
+	- *
+	  Khớp 0 hoặc nhiều ký tự (ví dụ: *.sh, data*).
+
+	- ?
+	  Khớp đúng 1 ký tự (ví dụ: file?.txt sẽ khớp file1.txt nhưng không khớp file10.txt).
+
+	- [abc]
+	  Khớp một ký tự trong ngoặc (ví dụ: file[12].txt khớp file1.txt hoặc file2.txt).
+
+	- [a-z], [!0-9]
+	  Khớp khoảng ký tự hoặc phủ định.
+
+- Thiết lập nullglob và failglob:
+
+	- Mặc định nếu không có file nào khớp, pattern sẽ không thay đổi (ví dụ *.xyz vẫn là literal).
+
+	- shopt -s nullglob
+  	  Khi bật, nếu không có file nào khớp, pattern sẽ bị loại ra (trả về mảng rỗng).
+
+	- shopt -s failglob
+	  Khi bật, nếu không có file nào khớp, sẽ báo lỗi và dừng script.
+
+- Ví dụ:
+$ shopt -s nullglob
+$ files=( *.txt )
+$ echo "Có ${#files[@]} file .txt"
+
+- Phân biệt globbing và regex:
+- Globbing chỉ áp dụng cho tên file và đơn giản hơn.
+- Regular expressions (thường dùng với grep, [[ … =~ … ]]) mạnh hơn nhưng phức tạp hơn.
+
+***Tổng kết
+- sleep: delay trong script, hỗ trợ giây, phút, giờ, ngày, số thực.
+- find + wc: tìm kiếm file đa năng, kết hợp wc -l để đếm kết quả.
+- Globbing: mở rộng tên file nhanh, cần lưu ý nullglob/failglob để tránh nhầm lẫn khi không có file khớp.
+
+
 -------------------------------------------------------
-### 3. File Permission & Navigation
+Bài tập 3. File Permission & Navigation
 - Tạo thư mục `test`, vào trong đó, tạo 3 file `a.txt`, `b.txt`, `c.txt`. Đổi quyền thành chỉ đọc.
 - Ghi lại đường dẫn tuyệt đối của file `b.txt`.
 
 -------------------------------------------------------
-### 4. Process & System
+Bài tập 4. Process & System
 - Hiển thị 5 tiến trình sử dụng nhiều CPU nhất.
 - Ghi lại mức sử dụng RAM hiện tại.
 
 -------------------------------------------------------
-### 5. Performance/Testing Tools
+Bài tập 5. Performance/Testing Tools
 - Dùng `time` để đo thời gian chạy script Python đơn giản.
 - Dùng `top` để kiểm tra mức sử dụng CPU trong 10 giây.
 
 -------------------------------------------------------
-### 6. Bonus: Viết shell script
+Bài tập 6. Bonus: Viết shell script
 - Tạo một shell script tên `check_temp.sh` giả lập kiểm tra giá trị nhiệt độ (random từ 30-100). Nếu > 70 thì in "Warning".
 -------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
